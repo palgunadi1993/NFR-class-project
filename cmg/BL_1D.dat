@@ -1,0 +1,188 @@
+
+
+RESULTS SIMULATOR IMEX
+********************************************************************************
+** I/O Control Section                                                        **
+********************************************************************************
+TITLE1 ' Deplation'
+
+
+*INUNIT *FIELD              
+WPRN WELL TIME
+**   *WPRN   *GRID   1
+WPRN ITER BRIEF
+OUTPRN WELL BRIEF
+OUTPRN RES NONE
+OUTPRN TABLES NONE
+** OUTPRN *GRID   *SO *SG *SW  *PRES
+WSRF GRID 1
+WSRF WELL 1
+**OUTSRF GRID KRO KRW PRES SG SO SW VISO VISW 
+OUTSRF GRID ALL
+OUTSRF RES ALL
+WRST TIME
+
+*DEBUG  *PDUMP
+
+********************************************************************************
+** Reservoir Description Section                                              **
+********************************************************************************
+
+*GRID *CART 100   1    1    ** 10 blocks in each the I (x) and J (y) directions.
+** 3 layers in the K (z) direction.
+*DI *CON 1.0             ** I direction block dimensions constant at 1000 ft.
+*DJ *CON 1.0             ** J direction block dimensions constant at 1000 ft.
+*DK *KVAR                   ** K direction block dimensions (layer thicknesses)
+1             ** are 50 ft., 30 ft. and 20 ft. for the bottommost
+** middle and uppermost layers, respectively.   
+*DEPTH 1 1 1 8400.0         ** Depth to center of first block, in bottom layer.   
+**  0 = null block, 1 = active block
+NULL CON            1
+
+*POR *CON 0.2               ** Porosity is constant throughout the reservoir.
+
+*CPOR   3.0E-16              ** Rock compressibility and
+*PRPOR 14.7                 ** reference pressure.
+
+*PERMI *CON  1000.0               ** permeabilities 
+*PERMJ *CON  1000.0 
+*PERMK *CON  1000.0     
+**  0 = pinched block, 1 = active block
+PINCHOUTARRAY CON            1
+
+
+*MODEL *BLACKOIL            ** Solve three equations.
+********************************************************************************
+** Component Property Section                                                 **
+********************************************************************************
+*PVT
+** p        rs        bo        eg       viso     visg
+
+2014.700   636.000   1.001   620.000 5.0000 0.0189000
+2514.000   775.000   1.002   773.000 5.0000 0.0208000
+
+
+
+*DENSITY *OIL    46.244
+*DENSITY *GAS     0.0647
+*DENSITY *WATER  62.238
+*CO    1.3687E-15
+*CVO   0
+*BWI   1.00
+*CW    2.9886E-16
+*REFPW 14.7
+*VWI   1.0
+*CVW   0.0   
+
+
+*ROCKFLUID
+********************************************************************************
+** Rock-Fluid Property Section                                                **
+********************************************************************************
+*RPT 1
+*SWT
+** sw         krw   krow   
+0.25	0.0000	0.7000
+0.30	0.0016	0.5531
+0.35	0.0093	0.4235
+0.40	0.0257	0.3111
+0.45	0.0527	0.2160
+0.50	0.0920	0.1383
+0.55	0.1452	0.0778
+0.60	0.2134	0.0346
+0.65	0.2980	0.0086
+0.70	0.4000	0.0000
+
+
+*SLT
+**  sl     krg        krog  
+0.12    0.984       0.0 
+0.15    0.98        0.0       
+0.30    0.94        0.0       
+0.40    0.87        1.0000E-4       
+0.50    0.72        0.001
+0.55    0.6         0.01
+0.60    0.41        0.021
+0.70    0.19        0.09
+0.75    0.125       0.2
+0.80    0.075       0.35
+0.88    0.025       0.7
+0.95    0.005       0.98
+0.98    0.0         0.997
+0.999   0.0         1.0
+1.0     0.0         1.0   
+
+
+*INITIAL
+********************************************************************************
+** Initial Conditions Section                                                 **
+********************************************************************************
+*VERTICAL *BLOCK_CENTER     ** Use vertical equilibrium calculation.
+*PB *CON    2514          ** buble point pressure
+*REFDEPTH   8400.           ** Give a reference depth  and
+*REFPRES    3500.           ** associated pressure.
+*DWOC       9500.           ** Depth to water-oil contact
+*DGOC       7000.           ** Depth to gas-oil conttact   
+
+
+*NUMERICAL
+********************************************************************************
+** Numerical Control Section                                                  **
+********************************************************************************
+*DTMAX        0.006         ** Maximum time step size
+*NORM *PRESS  1000.0        ** Normal maximum changes per time step
+*NORM *SATUR     0.10
+
+*AIM *OFF
+
+*RUN
+********************************************************************************
+** Well and Recurrent Data Section                                            **
+********************************************************************************
+
+*DATE 1987 01 1
+*DTWELL 1.0   
+** 
+** 
+** 
+** *WELL 1  'Producer' 
+**
+WELL  'Producer'
+** Define the type of well 2.
+** Initially, operate on a rate constraint.
+** If the BHP falls below 1000 psi, switch
+PRODUCER 'Producer'
+OPERATE  MAX  STO  0.15  CONT
+OPERATE  MIN  BHP  3500.0  CONT
+** if     jf     kf     ff                         
+**          rad  geofac  wfrac  skin
+GEOMETRY  K  0.025  0.34  1.0  0.0
+PERF       GEO  'Producer'
+** UBA               ff          Status  Connection  
+100 1 1         1.0  OPEN    FLOW-TO  'SURFACE'
+** 
+** *WELL 2  'Inj' 
+**
+WELL  'Inj'
+** Define the type of well 2.
+** Initially, operate on a rate constraint.
+** If the BHP falls below 1000 psi, switch
+INJECTOR MOBWEIGHT 'Inj'
+INCOMP  WATER
+OPERATE  MAX  STW  0.15 CONT
+OPERATE  MAX  BHP  6000.0  CONT
+** if     jf     kf     ff                         
+**          rad  geofac  wfrac  skin
+GEOMETRY  K  0.025  0.34  1.0  0.0
+PERF       GEO  'Inj'
+** UBA             ff          Status  Connection  
+1 1 1         1.0  OPEN    FLOW-FROM  'SURFACE'
+
+
+TIME 4
+TIME 8
+
+
+
+STOP
+\
