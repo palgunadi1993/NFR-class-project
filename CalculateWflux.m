@@ -29,10 +29,12 @@ for i=1:N
         else
             temp2 = nodes_pt(1,2);
         end
-        new_frac_neigh = frac_neigh(logical(sum(ismember(temp1,temp2),2)),:);
+        new_frac_neigh1 = frac_neigh(logical(sum(ismember(temp1,temp2),2)),:);
+        new_frac_neigh = [i;new_frac_neigh1];
+        neigh_ID(ismember(neigh_ID,new_frac_neigh)) = [];
     end
     
-    for j=1:num_neigh
+    for j=1:length(neigh_ID)
         p1=Pij(i);
         p2=Pij(neigh_ID(j));
         if(p2-p1>0)
@@ -47,8 +49,8 @@ for i=1:N
     end
     
     if num_neigh > 4
-        update_num = num_neigh + 1;
-        for z=1:length(new_frac_neigh)
+        update_num = length(neigh_ID) + 1;
+        for z=1:length(new_frac_neigh)-1
             c = z + 1;
             for d=c:length(new_frac_neigh)
                 p1=Pij(new_frac_neigh(z));
