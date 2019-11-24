@@ -29,27 +29,29 @@ for i=1:N
         else
             temp2 = nodes_pt(1,2);
         end
-        new_frac_neigh = frac_neigh(logical(sum(ismember(temp1,temp2),2)),:);
+        new_frac_neigh1 = frac_neigh(logical(sum(ismember(temp1,temp2),2)),:);
+        new_frac_neigh = [i;new_frac_neigh1];
+        neigh_ID(ismember(neigh_ID,new_frac_neigh)) = [];
         Dwf = 0;
-        for l=1:length(new_frac_neigh)
+        for l=1:length(new_frac_neigh1)
             pt_ctr = matrix_frac_center(i,:);
-            nodes = matrix_frac_nodes(new_frac_neigh(l),:);
+            nodes = matrix_frac_nodes(new_frac_neigh1(l),:);
             con_pt = nodes_pt(ismember(nodes_pt,nodes));
             con_pt(con_pt==0) = [];
             
             D1 = abs(pdist([pt_ctr;matrix_pos(con_pt(1),:)],'euclidean'));
-            D2 = abs(pdist([matrix_pos(con_pt(1),:);matrix_frac_center(new_frac_neigh(l),:)],'euclidean'));
+            D2 = abs(pdist([matrix_pos(con_pt(1),:);matrix_frac_center(new_frac_neigh1(l),:)],'euclidean'));
             
             if l==1
                 t1=Permx(i,1)/(D1);
             else
                 t1=0;
             end
-            t2=Permx(new_frac_neigh(l),1)/(D2);
+            t2=Permx(new_frac_neigh1(l),1)/(D2);
             Dwf = Dwf + t1 + t2;
         end
     end
-    for j=1:num_neigh
+    for j=1:length(neigh_ID)
         % normal distance initiation
         nodes_pt = matrix_frac_nodes(i,:);
         pt_ctr = matrix_frac_center(i,:);
@@ -92,20 +94,14 @@ for i=1:N
             t1=Permx(i,1)/(D1);
             t2=Permx(neigh_ID(j),1)/(D2);
             U = t1*t2;
-            
-            % fracture at intersection
-            if num_neigh > 4 && con_pt(1) == temp2
-                Dw = Dwf;
-            else
-                Dw = t1 + t2;
-            end
+            Dw = t1 + t2;
         end
         
         Trans(i,j)=A*U/(Dw);
     end
     if num_neigh > 4
-        update_num = num_neigh + 1;
-        for z=1:length(new_frac_neigh)
+        update_num = length(neigh_ID) + 1;
+        for z=1:length(new_frac_neigh)-1
             c = z + 1;
             for d=c:length(new_frac_neigh)
                 nodes_pt = matrix_frac_nodes(new_frac_neigh(z),:);
