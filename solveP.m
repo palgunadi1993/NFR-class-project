@@ -21,14 +21,14 @@ for i=1:N
     num_neigh = length(neigh_ID);
     Jac(ic,ic)=0;
     Rhs(ic)=0;
+    % if producer (i.e. pressure BC)
+    if Wells(i,1).id==-1
+        Jac(ic,ic)=Jac(ic,ic)+PI*(WellMobW(i,1)+WellMobO(i,1));
+        Rhs(ic,1)=Rhs(ic,1)+PI*(WellMobW(i,1)+WellMobO(i,1))*Wells(i,1).bhp;
+        % else if there is an injector, or no well
+    end
+    Rhs(ic,1)=Rhs(ic,1)+Wells(ic,1).rate;
     for j=1:num_neigh
-        % if producer (i.e. pressure BC)
-        if Wells(i,1).id==-1
-            Jac(ic,ic)=Jac(ic,ic)+PI*(WellMobW(i,1)+WellMobO(i,1));
-            Rhs(ic,1)=Rhs(ic,1)+PI*(WellMobW(i,1)+WellMobO(i,1))*Wells(i,1).bhp;
-            % else if there is an injector, or no well
-        end
-        Rhs(ic,1)=Rhs(ic,1)+Wells(i,1).rate;
         %
         Jac(ic,neigh_ID(j)) = -Trans(i,j); %- Pc;
         Jac(ic,ic) = Jac(ic,ic) - Jac(ic,neigh_ID(j));
