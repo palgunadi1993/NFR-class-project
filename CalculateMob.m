@@ -47,21 +47,20 @@ for i=1:N
     
     if num_neigh > 4
         update_num = length(neigh_ID) + 1;
-        for z=1:length(new_frac_neigh)-1
-            c = z + 1;
-            for d=c:length(new_frac_neigh)
-                p1=Pij(new_frac_neigh(z)); % pressure in the middle of the grid
-                p2=Pij(new_frac_neigh(d));
-                if(p2-p1>0)
-                    sw_up=Swij(new_frac_neigh(d));
-                else
-                    sw_up=Swij(new_frac_neigh(z));
-                end
-                [krw,kro]=CalculateRelPerm(new_frac_neigh(z),new_frac_neigh(d),num_matrix,sw_up,swir,sorw,wexp,oexp,krwro,krocw);
-                lambda_o=kro/mu_o; lambda_w=krw/mu_w;
-                Mob(i,update_num)=Trans(i,update_num)*(lambda_o+lambda_w);
-                update_num = update_num + 1;
+        z = 1;
+        c = z + 1;
+        for d=c:length(new_frac_neigh)
+            p1=Pij(new_frac_neigh(z)); % pressure in the middle of the grid
+            p2=Pij(new_frac_neigh(d));
+            if(p2-p1>0)
+                sw_up=Swij(new_frac_neigh(d));
+            else
+                sw_up=Swij(new_frac_neigh(z));
             end
+            [krw,kro]=CalculateRelPerm(new_frac_neigh(z),new_frac_neigh(d),num_matrix,sw_up,swir,sorw,wexp,oexp,krwro,krocw);
+            lambda_o=kro/mu_o; lambda_w=krw/mu_w;
+            Mob(i,update_num)=Trans(i,update_num)*(lambda_o+lambda_w);
+            update_num = update_num + 1;
         end
     end
     
