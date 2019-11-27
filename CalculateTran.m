@@ -101,27 +101,26 @@ for i=1:N
     end
     if num_neigh > 4
         update_num = length(neigh_ID) + 1;
-        for z=1:length(new_frac_neigh)-1
-            c = z + 1;
-            for d=c:length(new_frac_neigh)
-                nodes_pt = matrix_frac_nodes(new_frac_neigh(z),:);
-                pt_ctr = matrix_frac_center(new_frac_neigh(z),:);
-                nodes = matrix_frac_nodes(new_frac_neigh(d),:);
-                con_pt = nodes_pt(ismember(nodes_pt,nodes));
-                con_pt(con_pt==0) = [];
-                
-                D1 = abs(pdist([pt_ctr;matrix_pos(con_pt(1),:)],'euclidean'));
-                D2 = abs(pdist([matrix_pos(con_pt(1),:);matrix_frac_center(new_frac_neigh(d),:)],'euclidean'));
-                
-                A = aperture;
+        z = 1;
+        c = z + 1;
+        for d=c:length(new_frac_neigh)
+            nodes_pt = matrix_frac_nodes(new_frac_neigh(z),:);
+            pt_ctr = matrix_frac_center(new_frac_neigh(z),:);
+            nodes = matrix_frac_nodes(new_frac_neigh(d),:);
+            con_pt = nodes_pt(ismember(nodes_pt,nodes));
+            con_pt(con_pt==0) = [];
 
-                t1=Permx(new_frac_neigh(z),1)/(D1);
-                t2=Permx(new_frac_neigh(d),1)/(D2);
-                U = t1*t2;
-                
-                Trans(i,update_num) = A * U/Dwf;
-                update_num = update_num + 1;
-            end
+            D1 = abs(pdist([pt_ctr;matrix_pos(con_pt(1),:)],'euclidean'));
+            D2 = abs(pdist([matrix_pos(con_pt(1),:);matrix_frac_center(new_frac_neigh(d),:)],'euclidean'));
+
+            A = aperture;
+
+            t1=Permx(new_frac_neigh(z),1)/(D1);
+            t2=Permx(new_frac_neigh(d),1)/(D2);
+            U = t1*t2;
+
+            Trans(i,update_num) = A * U/Dwf;
+            update_num = update_num + 1;
         end
     end
 end
