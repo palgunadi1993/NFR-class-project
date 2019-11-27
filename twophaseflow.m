@@ -5,10 +5,10 @@ function twophaseflow
 % ========================= Input Data ==================================
 % --------------------    Grid Dimensions   -------------------------
 % load fine_mesh.mat
-load Simple_mesh.mat
+load intersection_mesh.mat
 
 num_nodes = msh.nbNod;
-matrix_pos1 = msh.POS(:,1:2);
+matrix_pos1 = msh.POS(:,1:2)/10;
 matrix_nodes1 = msh.TRIANGLES(:,1:3);
 num_matrix = length(matrix_nodes1);
 
@@ -38,7 +38,7 @@ matrix_nodes = matrix_nodes(I,:);
 
 % Initiation of fracture
 % Find fracture
-% x_bor = 2;
+% x_bor = 5;
 % y_bor = [2,8];
 % ab = 1;
 % a = zeros(200,1);
@@ -51,8 +51,8 @@ matrix_nodes = matrix_nodes(I,:);
 %     end
 % end
 % a(a==0) = [];
-% y_bor = 8;
-% x_bor = [2.5,8.0];
+% y_bor = 5;
+% x_bor = [2.0,8.0];
 % ab = 1;
 % b = zeros(200,1);
 % for i=1:length(center_fracture)
@@ -66,28 +66,28 @@ matrix_nodes = matrix_nodes(I,:);
 % b(b==0) = [];
 % c = [a;b];
 
-x_bor = 5;
-y_bor = [2,8];
-ab = 1;
-c = zeros(200,1);
-for i=1:length(center_fracture)
-    if center_fracture(i,1) <= x_bor + 0.025 && center_fracture(i,1) >= x_bor - 0.025
-        if center_fracture(i,2) <= y_bor(2) && center_fracture(i,2) >= y_bor(1)
-            c(ab) = fracture_id(i);
-            ab = ab + 1;
-        end
-    end
-end
-c(c==0) = [];
+% x_bor = 5;
+% y_bor = [2,8];
+% ab = 1;
+% c = zeros(200,1);
+% for i=1:length(center_fracture)
+%     if center_fracture(i,1) <= x_bor + 0.025 && center_fracture(i,1) >= x_bor - 0.025
+%         if center_fracture(i,2) <= y_bor(2) && center_fracture(i,2) >= y_bor(1)
+%             c(ab) = fracture_id(i);
+%             ab = ab + 1;
+%         end
+%     end
+% end
+% c(c==0) = [];
 
 % frac = [];
 % frac = [161, 182, 201, 223, 251, 278, 299, 314];
-% frac = [210, 231,250,273,306,325,344,188,214,244, 272,304,341,362,380];
+frac = [210, 231,250,273,306,325,344,188,214,244, 272,304,341,362,380];
 % frac = [1148,1100,1050,1006,974,948,931,924,900,916,952,971,993,1025,1064,1119,1164,1215,1263,...
 %     1282,1315,1321,1310,1300,1156,1083,1040,982,929,876,835,796,764,741];
 % frac = [7792	4421	7700	10433	6399	9933	6440	7180	4579	6904	9058	4786	8309	4648	7130	9464	9493	4929	7462	9106	7433	4323	8500	5472	8396	8909	4876	4775	9913];
 % frac = [411,444,490,526,559];
-frac = c;% cmg
+% frac = c;% cmg
 init_fracture = frac - num_matrix;
 
 % change fracture_id
@@ -113,7 +113,7 @@ con_frac = [new_fracture_nodes_pairs, zeros(length(new_fracture_nodes_pairs),1)]
 matrix_frac_nodes = [matrix_nodes;con_frac];
 
 % Define maximum intersection for fracture
-max_intersection = 0;
+max_intersection = 5;
 
 tot_id = length(matrix_frac_id);
 % ---------------------- units ----------------
@@ -156,6 +156,7 @@ por(num_matrix+1:end,1) = 1;
 % Input for an injector (rate at res. conditions)
 Wells(1,1).id=1;        %Coordinate x = 
 Wells(1,1).rate=0.15;
+Wells(1,1).bhp = 6000;
 
 
 % Input for a producer 
@@ -232,7 +233,7 @@ P=zeros(tot_id,1);
 % initial timestep (days)
 dt=0.15;
 % minimum allowed time step
-dtmin=0.001;
+dtmin=0.0001;
 % maximum allowed time step
 dtmax=0.8;
 % minimum sw change before increase timestep
@@ -241,7 +242,7 @@ dswmin=0.1;
 dswmax=0.2;
 % ------------------end timestep control --------------
 % simulation time
-final_time =3.0;
+final_time =6.0;
  
 time = 0;
 itime=0;
@@ -316,7 +317,7 @@ while time < final_time
     % check for material balance and calculate injection and production
     % volumes
     [wip,cumwi,cumwp,err]=Materialbalance(matrix_frac_center,Swij,Wells,Prodw,PorVol,dt,cumwi,cumwp,owip);   
-%     err
+    err
     % print outputs every 10 iteration
     if(rem(itime,10)==0)
          iplot=iplot+1;
@@ -535,8 +536,8 @@ colormap gray;
 trisurf(T,matrix_pos(:,1),matrix_pos(:,2),aa)
 c=colorbar;
 c.Label.String = 'Sw';
-c.Limits = [0.25 0.5];
-caxis([0.25 0.5])
+c.Limits = [0.25 0.7];
+caxis([0.25 0.7])
 % view([30,50])
 view(2)
 txt=['Time = ' num2str(time) ' days'];
@@ -572,8 +573,8 @@ end
 colormap jet;
 c=colorbar;
 c.Label.String = 'Sw';
-c.Limits = [0.25 0.5];
-caxis([0.25 0.5])
+c.Limits = [0.25 0.7];
+caxis([0.25 0.7])
 txt=['Time = ' num2str(time) 'days'];
 title(txt);
 
