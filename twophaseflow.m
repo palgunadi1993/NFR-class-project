@@ -5,7 +5,7 @@ function twophaseflow
 % ========================= Input Data ==================================
 % --------------------    Grid Dimensions   -------------------------
 % load fine_mesh.mat
-load Simple_mesh.mat
+load complex_mesh.mat
 
 num_nodes = msh.nbNod;
 matrix_pos1 = msh.POS(:,1:2);
@@ -66,19 +66,19 @@ matrix_nodes = matrix_nodes(I,:);
 % b(b==0) = [];
 % c = [a;b];
 
-x_bor = 5;
-y_bor = [2,8];
-ab = 1;
-c = zeros(200,1);
-for i=1:length(center_fracture)
-    if center_fracture(i,1) <= x_bor + 0.025 && center_fracture(i,1) >= x_bor - 0.025
-        if center_fracture(i,2) <= y_bor(2) && center_fracture(i,2) >= y_bor(1)
-            c(ab) = fracture_id(i);
-            ab = ab + 1;
-        end
-    end
-end
-c(c==0) = [];
+% x_bor = 5;
+% y_bor = [2,8];
+% ab = 1;
+% c = zeros(200,1);
+% for i=1:length(center_fracture)
+%     if center_fracture(i,1) <= x_bor + 0.025 && center_fracture(i,1) >= x_bor - 0.025
+%         if center_fracture(i,2) <= y_bor(2) && center_fracture(i,2) >= y_bor(1)
+%             c(ab) = fracture_id(i);
+%             ab = ab + 1;
+%         end
+%     end
+% end
+% c(c==0) = [];
 
 % frac = [];
 % frac = [161, 182, 201, 223, 251, 278, 299, 314];
@@ -87,7 +87,8 @@ c(c==0) = [];
 %     1282,1315,1321,1310,1300,1156,1083,1040,982,929,876,835,796,764,741];
 % frac = [7792	4421	7700	10433	6399	9933	6440	7180	4579	6904	9058	4786	8309	4648	7130	9464	9493	4929	7462	9106	7433	4323	8500	5472	8396	8909	4876	4775	9913];
 % frac = [411,444,490,526,559];
-frac = c;% cmg
+% frac = c;% cmg
+frac = fracture_line_id();
 init_fracture = frac - num_matrix;
 
 % change fracture_id
@@ -308,10 +309,10 @@ while time < final_time
         end        
     end
     
-    save_time(inum) = time;
-    saveSw(inum) = Swij(num_matrix);
-    saveP(inum) = P(num_matrix);
-    inum = inum + 1;
+%     save_time(inum) = time;
+%     saveSw(inum) = Swij(num_matrix);
+%     saveP(inum) = P(num_matrix);
+%     inum = inum + 1;
     
     % advance time
     time = time +dt     ;
@@ -322,7 +323,7 @@ while time < final_time
     % check for material balance and calculate injection and production
     % volumes
     [wip,cumwi,cumwp,err]=Materialbalance(matrix_frac_center,Swij,Wells,Prodw,PorVol,dt,cumwi,cumwp,owip);   
-    err;
+    err
     % print outputs every 10 iteration
     if(rem(itime,10)==0)
          iplot=iplot+1;
@@ -335,9 +336,9 @@ while time < final_time
     if(final_time-time<dt)dt=max(final_time-time,1e-10);end
 end
 % plot saturation 
-save('Saturation_lastNodes.mat', saveSw);
-save('Pressure_lastNodes.mat', saveP);
-save('time.mat', save_time);
+% save('Saturation_lastNodes.mat', 'saveSw');
+% save('Pressure_lastNodes.mat', 'saveP');
+% save('time.mat', 'save_time');
 plotp_Sw_time(matrix_frac_nodes,matrix_pos,Swij,time)
 % plot rates
 figure
