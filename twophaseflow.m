@@ -5,7 +5,7 @@ function twophaseflow
 % ========================= Input Data ==================================
 % --------------------    Grid Dimensions   -------------------------
 % load fine_mesh.mat
-load complex_mesh.mat
+load fin_model.mat
 
 num_nodes = msh.nbNod;
 matrix_pos1 = msh.POS(:,1:2);
